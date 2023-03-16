@@ -15,7 +15,7 @@ const PostTableOfContent = ({ children, className }: PostTableOfContentProps) =>
   return (
     <div className={className}>
       <ol>
-        {headings?.map(heading => <TableOfContentElement {...heading}/>)}
+        {headings?.map(heading => <TableOfContentElement key={heading.id} {...heading}/>)}
       </ol>
     </div>
   )
@@ -23,7 +23,7 @@ const PostTableOfContent = ({ children, className }: PostTableOfContentProps) =>
 
 const TableOfContentElement = ({ id, level, title, children }: Heading) => {
   return (
-    <li key={id}><a href={"#" + id}>{title}</a>{children && (<ol>{children.map(child => <TableOfContentElement {...child}/>)}</ol>)}</li>
+    <li key={id}><a href={"#" + id}>{title}</a>{children && (<ol>{children.map(child => <TableOfContentElement key={child.id} {...child}/>)}</ol>)}</li>
   )
 };
 
