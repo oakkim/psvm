@@ -1,0 +1,97 @@
+---
+title: "MapStruct가 is 접두사를 가진 boolean 필드를 매핑하지 못하는 문제"
+description: ""
+createdAt: '2023-03-15T15:13:35.663Z'
+preview: null
+draft: true
+tags:
+  - mapstruct
+category: 문제해결
+---
+
+# 문제 - boolean 필드명에 is 접두사가 붙어 MapStruct가 매핑하지 못함
+MapStruct에서 특정 `boolean` 필드를 자동으로 맵핑하지 못하는 문제가 발생했다. 문제가 생기는 필드명이 좀 특이한데, 필드명에 `is 접두사`가 들어가는 점이다. 예를 들어 필드명이 `isActive`로 되어있다.
+
+```java
+class Article {
+  private final boolean isActive;
+  
+  public boolean isActive() {
+    return isActive;
+  }
+}
+
+class ArticleDto {
+  private final boolean isActive;
+  
+  public ArticleDto(boolean isActive) {
+    this.isActive = isActive;
+  }
+
+  public boolean isActive() {
+    return isActive;
+  }
+  
+  public static ArticleDto fromEntity(Article article) {
+    return new ArticleDto(article.isActive());
+  }
+}
+```
+boolean 필드명이 is~로 시작한다.
+
+하지만, 원래 Java 표준대로라면 필드명에 `is 접두사`가 붙는게 아닌, `Getter`에 `is 접두사`를 사용하게끔 되어있다. 그래서 **MapStruct는 표준대로 `isActive`에 관한 `Getter`가 `isIsActive()` 메서드라고 예상**하고, 해당 메서드를 찾지 못해 매핑을 못한 것이다.
+
+![boolean 프로퍼티의 경우, is&lt;PropertyName&gt;()와 같이 Getter 메서드를 만드는 걸 허용한다.](/posts/mapstruct가-is-접두사를-가진-boolean-필드를-매핑하지-못하는-문제/1.png)
+
+# 그럼 해결방법은?
+## 해당 필드명의 is 접두사를 삭제한다.
+가장 간단한 해결방법으로, 필드명의 `is 접두사`를 지운다. IDE의 필드명 마이그레이션 기능으로 간편하게 변경가능하나, 해당 기능으로 미처 수정안된 곳에서 오류가 발생할 수도 있다. (ex: Json 역직렬화를 위해서 `ConstructorProperties`를 지정했으나 수정하지 않은 경우)
+
+가능하다면, 앞으로의 행복한 코딩 생활을 위해서 바꾸는걸 강력 추천한다.
+
+만약 이미 프로젝트 규모가 너무 커져버렸다면? 아래의 방법들을 시도해보자.
+
+## 매퍼에 수동으로 필드 매핑 어노테이션을 붙인다.
+번거롭지만, is 접두사가 붙은 필드를 수동으로 매핑하도록 `@Mapping` 를 사용한다. 첫번째 방법보다는 안전하겠지만 번거롭다.
+
+```java
+@Mapper
+interface ArticleMapper {
+  @Mapping(source = "isActive", target = "isActive")
+  Article toEntity(ArticleDto from);
+}
+```
+만약 프로젝트 내의 모든 `boolean` 필드에 `is 접두사`가 붙어있고, 앞으로 그렇게 하도록 약속했다면? 아래 방법을 시도해보자.
+
+## 커스텀 NamingStrategy를 작성한 후 SPI를 등록한다.
+MapStruct가 `Getter`나 `Setter`를 보고 `PropertyName`을 판단하는 로직을 직접 커스터마이징해볼 수 있다. `DefaultAccessorNamingStrategy`를 상속받는 클래스를 만들어 `getPropertyName()` 메서드를 오버라이드해보자.
+
+```java
+public class CustomAccessorNamingStrategy extends DefaultAccessorNamingStrategy {
+    @Override
+    public String getPropertyName(ExecutableElement getterOrSetterMethod) {
+        String methodName = getterOrSetterMethod.getSimpleName().toString();
+        // get이나 set으로 시작하면, 기존 로직을 거치고,
+        if (methodName.startsWith("get") || methodName.startsWith("set")) {
+          return super.getPropertyName(getterOrSetterMethod);
+        }
+        // 아니라면 methodName 그대로 돌려준다. (is 접두사의 경우, methodName 그대로 반환됨)
+        return methodName;
+    }
+}
+```
+
+위 네이밍 전략 클래스를 프로젝트 전역에 적용하기 위해선, MapStruct SPI(Service Provider Interface)를 사용해야한다.
+
+약간 번거롭긴하지만, SPI를 사용하기 위해서는 별도의 JAR 파일을 생성하고, 이 파일을 프로젝트에 annotationProcessorPaths로 등록시켜야하는데, 자세한 내용은 다음 글에 설명하도록 하겠다.
+
+SPI와 관련된 자료는 아래에 첨부하겠다.
+
+  공식문서: https://mapstruct.org/documentation/stable/reference/html/#using-spi
+
+  예시: https://github.com/mapstruct/mapstruct-examples/tree/main/mapstruct-spi-accessor-naming
+
+# 결론
+사실 위 과정을 거쳐서 꾸역꾸역 `is 접두사`를 유지하는 것보다, 자바 표준을 지키게끔 `is 접두사`를 삭제해버리는 게 제일 속 편하고, 다른 라이브러리에서도 이런 상황을 피할 수 있다.
+
+괜히 표준이 있는게 아니니깐, 표준을 지키면서 개발하자. 물론 나도…
