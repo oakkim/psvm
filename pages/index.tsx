@@ -1,7 +1,33 @@
-export default function Home() {
+import {
+  GetStaticProps,
+  InferGetStaticPropsType,
+} from 'next';
+import { allPosts } from 'contentlayer/generated';
+import dayjs from 'dayjs';
+
+const Home = ({
+  posts,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <div className="w-full">
+      {posts.map((post?: any) => 
+        <a key={post?.id} className="block p-4 border-b" href={"/posts/" + post?._raw.flattenedPath}>
+          <div>
+            <span className="font-bold">{post?.title}</span>
+          </div>
+          <div>{dayjs(post?.createdAt).format("YYYY년 MM월 DD일")}</div>
+        </a>
+      )}
+    </div>
   )
-}
+};
+
+export default Home;
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  return {
+    props: {
+      posts: allPosts,
+    },
+  };
+};
