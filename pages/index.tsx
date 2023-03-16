@@ -4,6 +4,7 @@ import {
 } from 'next';
 import { allPosts } from 'contentlayer/generated';
 import dayjs from 'dayjs';
+import Link from 'next/link';
 
 const Home = ({
   posts,
@@ -11,12 +12,12 @@ const Home = ({
   return (
     <div className="w-full">
       {posts.map((post?: any) => 
-        <a key={post?.id} className="block p-4 border-b" href={"/posts/" + post?._raw.flattenedPath}>
+        <Link key={post?.id} className="block p-4 border-b" href={"/posts/" + post?._raw.flattenedPath}>
           <div>
             <span className="font-bold">{post?.title}</span>
           </div>
           <div>{dayjs(post?.createdAt).format("YYYY년 MM월 DD일")}</div>
-        </a>
+        </Link>
       )}
     </div>
   )
