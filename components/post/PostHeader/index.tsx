@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import Separator from '../Separator';
 
 type PostHeaderProps = {
   title: string;
@@ -13,7 +14,7 @@ const PostHeader = ({ title, description, category, createdAt }: PostHeaderProps
       <span>{category}</span>
       <h1>{title}</h1>
       <time dateTime={dayjs(createdAt).toISOString()}>{dayjs(createdAt).format('YYYY년 MM월 DD일')}</time>
-      <div>--------------------</div>
+      <Separator/>
     </div>
   );
 };
