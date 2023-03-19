@@ -1,4 +1,7 @@
 .post {
+  word-wrap: break-word;
+  word-break: break-all;
+  
   .toc {
     font-size: 0.85rem;
 
@@ -25,7 +28,6 @@
   .body {
     p {
       line-height: 1.8;
-      letter-spacing: 1.4;
     }
 
     * {
