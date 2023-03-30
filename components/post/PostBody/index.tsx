@@ -3,6 +3,8 @@ import useTableOfContents, { Heading } from '@/hooks/useTableOfContents';
 import { renderToString } from "react-dom/server";
 import { ReactNode } from 'react';
 
+import style from '@/pages/posts/posts.module.scss'
+
 type PostBodyProps = {
   children: string;
   className?: string;
@@ -60,6 +62,16 @@ const CustomH6 = ({ children }: CustomHeadingProps) => {
   )
 }
 
+const CustomImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+  return (
+    <span className={style.img}>
+      <img {...props}/>
+      <span className={style['img-alt']}>
+        {props.alt}
+      </span>
+    </span>
+  )
+}
 
 const PostBody = ({ children, className }: PostBodyProps) => {
   const MDXComponent = useMDXComponent(children || '');
@@ -72,7 +84,8 @@ const PostBody = ({ children, className }: PostBodyProps) => {
         h3: CustomH3,
         h4: CustomH4,
         h5: CustomH5,
-        h6: CustomH6
+        h6: CustomH6,
+        img: CustomImage
       }}/>
     </div>
   )
