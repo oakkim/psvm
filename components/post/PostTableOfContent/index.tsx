@@ -3,19 +3,15 @@ import { useMDXComponent } from 'next-contentlayer/hooks';
 import { renderToString } from "react-dom/server";
 
 type PostTableOfContentProps = {
-  children: string;
+  children?: Heading[] | null;
   className: string;
 }
 
 const PostTableOfContent = ({ children, className }: PostTableOfContentProps) => {
-  const MDXComponent = useMDXComponent(children || '');
-  const contentString = renderToString(<MDXComponent/>)
-  const headings = useTableOfContents(contentString);
-
   return (
     <div className={className}>
       <ol>
-        {headings?.map(heading => <TableOfContentElement key={heading.id} {...heading}/>)}
+        {children?.map(heading => <TableOfContentElement key={heading.id} {...heading}/>)}
       </ol>
     </div>
   )

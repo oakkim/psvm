@@ -11,16 +11,19 @@ import PostTableOfContent from '@/components/post/PostTableOfContent';
 import style from './posts.module.scss';
 import Giscus from '@/components/Giscus';
 import Separator from '@/components/post/Separator';
+import useTableOfContents from '@/hooks/useTableOfContents';
 
 const PostDetailPage = ({
   post,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const tableOfContent = useTableOfContents(post?.body.code)
+
   return (
     <div className={ "flex w-full max-w-screen-lg gap-3 " + style.post }>
       <div className="relative hidden lg:block" style={{width: '240px'}}>
         <div className="fixed my-10 ml-2 pl-5 pr-5" style={{width: '240px'}}>
           <PostTableOfContent className={style.toc}>
-            {post?.body.code}
+            {tableOfContent}
           </PostTableOfContent>          
         </div>
       </div>

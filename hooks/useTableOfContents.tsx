@@ -1,3 +1,6 @@
+import { useMDXComponent } from "next-contentlayer/hooks";
+import { renderToString } from "react-dom/server";
+
 export type Heading = {
   id: string;
   level: number;
@@ -32,7 +35,7 @@ class Stack<T> {
   }
 }
 
-const useTableOfContents = (html: string) => {
+const useTableOfContents = (code: string) => {
   const getHeadings = (source: string) => {
     const regex = /<h([0-9]+)>(.*?)<\/h([0-9]+)>/g;
     const matches = source.matchAll(regex);
@@ -67,7 +70,10 @@ const useTableOfContents = (html: string) => {
     
     return rootHeadings;
   }
-  return getHeadings(html);
+  const MDXComponent = useMDXComponent(code);
+  const contentString = renderToString(<MDXComponent/>)
+
+  return getHeadings(contentString);
 };
 
 export default useTableOfContents;
