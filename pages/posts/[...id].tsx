@@ -14,6 +14,7 @@ import style from './posts.module.scss';
 import Giscus from '@/components/Giscus';
 import Separator from '@/components/post/Separator';
 import useTableOfContents from '@/hooks/useTableOfContents';
+import Supacus from '@/components/Supacus';
 
 const PostDetailPage = ({
   post,
@@ -44,7 +45,7 @@ const PostDetailPage = ({
           {post?.body.code}
         </PostBody>
         <Separator/>
-        <Giscus/>
+        <Supacus siteId={1} contentId={post?._raw.flattenedPath}/>
       </div>
    </div>
   );
