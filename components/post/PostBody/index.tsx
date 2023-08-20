@@ -1,9 +1,8 @@
 import { useMDXComponent } from 'next-contentlayer/hooks';
-import useTableOfContents, { Heading } from '@/hooks/useTableOfContents';
-import { renderToString } from "react-dom/server";
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 import style from '@/pages/posts/posts.module.scss'
+import CustomTable from '@/components/common/CustomTable';
 
 type PostBodyProps = {
   children: string;
@@ -11,54 +10,26 @@ type PostBodyProps = {
 }
 
 type CustomHeadingProps = {
+  as: React.ElementType;
+  className?: string;
   children?: ReactNode;
 }
 
-const CustomH1 = ({ children }: CustomHeadingProps) => {
+const CustomHeading = ({ as, className, children }: CustomHeadingProps) => {
   const id = children?.toString().replace(/ /g, '_').toLowerCase();
+  const Component = as
+
+  const [showHash, setShowHash] = useState<boolean>(false)
 
   return (
-    <h2 id={id}><a href={"#" + id}>{"# " + children}</a></h2>
-  )
-}
-
-const CustomH2 = ({ children }: CustomHeadingProps) => {
-  const id = children?.toString().replace(/ /g, '_').toLowerCase();
-
-  return (
-    <h3 id={id}><a href={"#" + id}>{"# " + children}</a></h3>
-  )
-}
-
-const CustomH3 = ({ children }: CustomHeadingProps) => {
-  const id = children?.toString().replace(/ /g, '_').toLowerCase();
-
-  return (
-    <h4 id={id}><a href={"#" + id}>{"# " + children}</a></h4>
-  )
-}
-
-const CustomH4 = ({ children }: CustomHeadingProps) => {
-  const id = children?.toString().replace(/ /g, '_').toLowerCase();
-
-  return (
-    <h5 id={id}><a href={"#" + id}>{"# " + children}</a></h5>
-  )
-}
-
-const CustomH5 = ({ children }: CustomHeadingProps) => {
-  const id = children?.toString().replace(/ /g, '_').toLowerCase();
-
-  return (
-    <h6 id={id}><a href={"#" + id}>{"# " + children}</a></h6>
-  )
-}
-
-const CustomH6 = ({ children }: CustomHeadingProps) => {
-  const id = children?.toString().replace(/ /g, '_').toLowerCase();
-
-  return (
-    <div id={id} className="h7"><a href={"#" + id}>{"# " + children}</a></div>
+    <Component id={id} className={`block w-full ${className}`}>
+      <a className="flex w-full" href={"#" + id} onMouseEnter={() => setShowHash(true)} onMouseLeave={() => setShowHash(false)}>
+        {children}
+        <div className={`ml-2 ${showHash ? "" : "hidden"}`}>
+          <u>#</u>
+        </div>
+      </a>
+    </Component>
   )
 }
 
@@ -79,13 +50,14 @@ const PostBody = ({ children, className }: PostBodyProps) => {
   return (
     <div className={className}>
       <MDXComponent components={{
-        h1: CustomH1,
-        h2: CustomH2,
-        h3: CustomH3,
-        h4: CustomH4,
-        h5: CustomH5,
-        h6: CustomH6,
-        img: CustomImage
+        h1: ({ children }) => <CustomHeading as="h2">{children}</CustomHeading>,
+        h2: ({ children }) => <CustomHeading as="h3">{children}</CustomHeading>,
+        h3: ({ children }) => <CustomHeading as="h4">{children}</CustomHeading>,
+        h4: ({ children }) => <CustomHeading as="h5">{children}</CustomHeading>,
+        h5: ({ children }) => <CustomHeading as="h6">{children}</CustomHeading>,
+        h6: ({ children }) => <CustomHeading as="div" className="h7">{children}</CustomHeading>,
+        img: CustomImage,
+        table: ({ children }) => <CustomTable>{children}</CustomTable>,
       }}/>
     </div>
   )
