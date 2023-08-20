@@ -1,0 +1,175 @@
+---
+title: "오픈소스 Firebase, Supabase는 뭐니?"
+description: "Supabase는 어떤점에서 Firebase와 다를까? 그리고 어떤점이 좋을까?"
+createdAt: '2023-08-21T01:05:00.000Z'
+preview: null
+draft: false
+tags:
+  - tutorial
+  - supabase
+category: Supabase
+---
+
+Firebase의 대안으로 떠오른 Supabase가 뭔지, 어떤점이 다른지, 장단점은 무엇인지 알아보고 기본적인 사용법을 보고 그 편리성에 같이 감탄해보자.
+Supabase나 Firebase로 빠르게 아이디어를 실현해보고 작건크건 내 삶이나 세상을 변화시키는 경험을 해보자.
+
+# Firebase의 대항마 Supabase
+[Supabase](https://supabase.com/)는 Firebase처럼 빠르게 제품을 만들게 도와주는 여러 도구들을 클라우드로 제공한다.
+예를 들어 실시간 DB, 사용자 관리, 소셜로그인, 저장소, Edge 함수 등이 있다.
+
+**Supabase의 장점은 오픈소스다.**
+Firebase는 구글 플랫폼이기에 꼽히는 폐쇄성, 확장성, [지속가능성](https://killedbygoogle.com/)에 문제가 있다.
+요즘은 노골적으로 Firebase의 기능을 없애고 구글 클라우드로 [강제 이전](https://koptional.com/article/why-we%e2%80%99re-moving-away-from-firebase/#forced-migration-to-gcp-via-removal-of-firebase-features)시켜버리기도 했다.
+그에 반해 Supabase는 오픈소스기 때문에 이런 걱정을 할 필요가 없다. 심지어는 직접 Supabase를 호스팅해도된다. (구글은 절대 안해줌)
+
+오픈소스라고 걱정할 필요는 없다. PostgreSQL, Elixir 등 엔터프라이즈급의 좋은 오픈소스들을 사용해 만들어졌다.
+
+# Supabase는 언제쓰면 좋을까?
+ - **개발 자원이 부족할때**: 물론 처음부터 제대로 만들면 좋겠지만, 개발 시간이 부족하거나 유지보수 비용이 작아야할 때 좋은 선택이 될 수 있다.
+ - **프로토타이핑 프로젝트**: 아직 확실하지 않은 제품을 금방만들고 시장의 반응을 보기 좋은 도구이다. 빠르게 만들었다고 추후 확장성이 안좋은 것도 아니다.
+ - **개인 프로젝트**: 개인적으로 개인프로젝트는 오랫동안 완벽하게 만들기보단 빠르게 단순하게 만들어서 실제로 사용하는게 중요하다고 생각한다. Supabase로도 충분하다.
+
+# Supabase와 Firebase 비교
+무료 버전 기준 비교를 해보니, 역시 Firebase에 비해 무료로 제공하는 규모가 적긴하다. <strike>(머기업)</strike>
+그러나, Supabase는 오픈소스인점을 생각해보면 직접 호스팅해 원하는 규모로 확장할 수 있다. 그러나 호스팅 비용을 생각하면 월 25$로 유료버전을 사용하거나, 파이어베이스를 사용하는게 나을 수 있다.
+
+무조건 Supabase가 해답은 아닐 수 있다. 충분히 비교 후 두 제품을 선택하면 된다. 난 그저 오픈소스이고 PostgreSQL를 쓴다는 점에서 사용하게됐다.
+비교 | Supabase | Firebase
+:---: | :---: | :---:
+소스코드 | **오픈소스** | 비공개
+비활성시 중지 | 1주일 | **없음**
+프로젝트 수 | 2개 | [**5~10개**](https://medium.com/@waynethebrain/beware-firebase-project-limits-ed5867befe0a)
+DB | **PostgresSQL**, 500MB 용량 | NoSQL, **1GiB 용량**
+사용자 인증 | **MAU 5만명,<br/>소셜 로그인 업체 카카오 포함 19개** | MAU 5만명,<br/>소셜 로그인 업체 5개
+서버리스 함수 | 5십만 호출 | **2백만 호출**, GCP로 이전됨.
+저장소 | 1GB 용량, 월 2GB 대역폭 | **5GB 용량, 일 1GB 대역폭**
+호스팅 | 미제공 | 10GB, 일 360MB 대역폭
+ML | 베타버전, 무료로 미제공 | 모델 배포 가능, ML API 1000회 제공
+유료버전 | 프로젝트당 월 25$ | 종량제
+
+# 좋은점
+ - **서버가 없어도 된다**: 서버 코드를 작성할 필요도 없이 클라이언트가 데이터베이스를 직접 접근하는 구조다. 엥 그러면 보안은 어떡하나? 걱정마라. PostgreSQL에서 제공하는 RLS(Row Level Security)를 통해 각각의 레코드(데이터)를 누가 조회/추가/수정/삭제할 수 있는지 정할 수 있다.
+ - **개발 속도가 빠르다**: 서버를 만들 필요가 없으니 당연히 개발 속도는 빠를 수 밖에 없다. 또한 계정관리/SNS로그인/가입이메일발송 등 별거 아닌듯해도 귀찮은 사용자 인증 작업은 이미 Supabase에서 제공한다.
+ - **카카오 로그인**: 신기하게도 카카오 로그인을 지원한다. 구글/페이스북/트위터 같은 해외 소셜 로그인보단 국내 소셜 로그인을 쓰는게 평범한 사용자 입장에서 더 편하다. Firebase엔 없다.
+
+# 단점
+ - **서버가 없어서 문제**: 심화적인 권한 로직을 DB RLS 기능으로만 처리하기 까다롭다. 일반적으론 상관없으나, 경험상 익명기능을 다루고 싶을때 문제가 있었다.
+ - **플랫폼별 로직 중복 문제**: 각 플랫폼(웹, 안드, iOS 등) 별로 같은 로직을 여러번 구현해야하는 문제가 있다. 이 또한 서버가 없어 발생하는 문제다.
+
+해당 문제들이 있지만, Supabase를 선택했다는건 그만큼 간단한 프로젝트이고 시장 반응을 보기위해 빠르게 만들기 위함이다. 그래서 해당 단점들은 감수할 수 있다고 생각한다.
+또한, 위 문제는 DB만 사용했을 때 문제지 DB Function과 Trigger나 서버리스 함수 실행 기능인 [Functions](https://supabase.com/edge-functions)를 사용하면 해결할 수 있는 문제다.
+
+(Supabase Functions는 월별 50만 요청, 10개 함수를 무료로 제공한다. 해당 기능은 Deno 기반으로 동작한다. 좀 더 많은 사용량을 무료로 사용하고 싶다면 [Deno Deploy](https://deno.com/deploy)를 참고해봐도 좋다.)
+
+# 미리보기
+자바스크립트 라이브러리 [@supabase/supabase-js](https://www.npmjs.com/package/@supabase/supabase-js)를 사용한 간단한 예제들을 살펴보자.
+
+## 데이터베이스 (DB)
+![데모용 Post 테이블](/posts/tutorials/supabase/what-is-supabase/post-table-structure.png)
+
+위와 같은 테이블이 있을 때, 데이터 조회/추가/수정/삭제는 아래와 같이 할 수 있다. 문법이 SQL을 늘어놓은 것처럼 간결하고 보기 쉽다.
+
+```javascript
+// 조회
+const { data, error } = await supabase
+  .from('posts')
+  .select()
+
+// 추가, id와 createdAt은 자동 생성된다.
+const { error } = await supabase
+  .from('posts')
+  .insert({ content: '콘텐츠 내용입니다.' })
+
+// 수정
+const { error } = await supabase
+  .from('posts')
+  .update({ content: '콘텐츠 내용을 수정합니다.' })
+  .eq('id', 1)
+
+// 삭제
+const { error } = await supabase
+  .from('posts')
+  .delete()
+  .eq('id', 1)
+```
+
+데이터 관리 권한의 경우, PostgreSQL의 RLS(Row Level Security)와 다음 섹션에 소개할 '사용자 관리' 기능의 조합으로 간단하게 제어가 가능하다.
+아래와 같이 접근 Policy를 설정한 뒤, 로그인하지 않은 상태로 insert 요청을 보내면 거부된다.
+
+```sql
+/* authenticated 역할을 가진 사용자에게만 INSERT 권한을 부여한다. */
+CREATE POLICY "인증된 사용자에게만 추가 허용"
+ON public.post
+FOR INSERT 
+TO authenticated 
+WITH CHECK (true);
+```
+
+
+## 사용자 관리 (Auth)
+사용자 회원가입/로그인도 코드 몇줄이면 매우 쉽게 구현가능하다.
+뿐만 아니라 사용자 관리용 메일(가입인증, 초대 등) 설정 및 꾸미기, 커스텀 SMTP 서버 연결,
+[Captcha](https://www.hcaptcha.com/) 또는 [Cloudflare Turnstile](https://www.cloudflare.com/products/turnstile/) 연결 기능 등 여러 부가 기능을 제공한다.
+
+```javascript
+// 회원가입
+const { data, error } = await supabase.auth.signUp({
+  email: 'example@email.com',
+  password: 'example-password',
+})
+
+// 로그인
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'example@email.com',
+  password: 'example-password',
+})
+
+// 로그인 정보 불러오기
+const { data, error } = await supabase.auth.getSession()
+console.log(data.session.user.email)
+```
+
+소셜로그인도 간단한 셋팅과 한줄만 작성하면 구현되는데 감탄스럽다. Supabase 쓰면서 가장 만족한 부분이다.
+```javascript
+await supabase.auth.signInWithOAuth({provider: 'kakao'})
+```
+
+## 저장소 (Storage)
+S3와 호환되는 오브젝트 저장소이고, 메타데이터 저장으로 PostgreSQL을 사용한다.
+덕분에 버킷(저장소)을 만드는 행위는 storage.buckets 테이블에 레코드를 추가하는 것과 같고,
+버킷 접근 권한 관리는 테이블에 RLS Policy를 추가하는 것과 같다.
+저장소 관리를 위해 자체 DSL(Domain Specific Language)를 만든 Firebase와 다르게, Supabase는 PostgreSQL을 적극 활용해 일관성있는 개발 경험을 제공한다.
+
+또한 기본적으로 CDN을 제공한다. 다만 기본제공 무료 CDN의 경우, 무조건 1시간 단위 캐싱을 하기 때문에 이미지가 변경/삭제되었을 때도 캐시가 삭제될때 까지 오래된 이미지를 보여줄 수 있다. 
+
+이렇게 좋지만, 기본제공 저장소 용량과 대역폭이 얼마되지 않기에 다른 대안을 찾아볼 필요가 있다.
+
+![반가 워요, 심플하고 직관적인 관리 UI를 제공한다.](/posts/tutorials/supabase/what-is-supabase/storage-screenshot.png)
+
+![storage 스키마의 buckets 테이블에 demo 버킷 레코드가 있다.](/posts/tutorials/supabase/what-is-supabase/storage-table-screenshot.png)
+
+## 함수 (Edge Functions)
+[Deno](https://deno.com/)를 활용해 만들어진 함수 기능으로 CDN처럼 전세계에 배포되어 호출 지연 시간이 짧다.
+마찬가지로 오픈소스이기 때문에 여느 Deno 호환 플랫폼(직접 호스팅 포함)에서 실행이 가능해 이식성이 뛰어나다.
+Typescript를 사용하고, WASM을 지원한다.
+
+Stripe를 활용한 결제 시스템 연동이라던지, 챗봇 개발, HuggingFace 연동 ML 시스템 개발 등 다양한 기능을 만들 수 있다.
+
+```bash
+> hello world 데모 함수 생성
+$ supabase functions new hello-world 
+> Supabase에 배포
+$ supabase functions deploy hello-world --project-ref {project-id} 
+> 함수 실행
+$ curl -L -X POST 'https://{project-id}.supabase.co/functions/v1/hello-world' -H 'Authorization: Bearer [YOUR ANON KEY]' --data '{"name":"Functions"}'
+{"message":"Hello Functions!"}
+```
+
+# 말해 뭐해, 직접 써보자!
+개발도 개발나름대로 중요하지만, 아이디어를 만들고 <strike>지겨워지기전에</strike> 실현시켜 직접 사용하는 경험이 중요하다고 생각한다.
+Supabase나 Firebase는 이런 빠른 실현에 큰 도움을 주는 도구다.
+
+사실 이 블로그의 댓글 기능도 Supabase로 내가 직접 만들었다.
+개발 블로그에 자주 쓰이는 utterence, giscus는 깃허브 로그인 밖에 안되고 익명 댓글도 안된다.
+이렇게 내가 불편한 부분을 채워주는 제품을 직접 만드는 건 또 다른 쾌감이 있다.
+**여러분들도 스쳐지나갔던 아이디어를 이참에 Supabase로 만들어 보는건 어떨까?**
