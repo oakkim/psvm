@@ -6,6 +6,7 @@ import {
 import highlight from 'rehype-highlight';
 import rehypePrettyCode from 'rehype-pretty-code';
 import firefoxLight from './firefox-light.json';
+import remarkGfm from 'remark-gfm';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -72,7 +73,9 @@ const contentSource = makeSource({
   contentDirPath: 'posts',
   documentTypes: [Post],
   mdx: {
-    remarkPlugins: [],
+    remarkPlugins: [
+      remarkGfm
+    ],
     rehypePlugins: [
       [
         rehypePrettyCode,
