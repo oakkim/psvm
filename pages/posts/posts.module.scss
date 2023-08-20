@@ -26,27 +26,33 @@
   }
 
   .body {
-    p {
+    p, ul {
       line-height: 1.8;
+      margin-bottom: 1.25rem;
+      &>strong {
+        color: black;
+      }
     }
 
     * {
-      margin-bottom: 1.25rem 
+      color: #131516;
     }
     
     &:nth-child(2) {
       margin-top: 0;
     }
 
-
-
-    h2 {
+    h2, h3, h4, h5, h6, .h7 {
       a {
         color: black;
       }
-
-      font-size: 1.5rem;
       scroll-margin-top: var(--h-header);
+      margin-bottom: 1.25rem 
+    }
+
+
+    h2 {
+      font-size: 1.5rem;      
       margin-top: 1.5rem;
 
       + h3 {
@@ -55,52 +61,27 @@
     }
 
     h3 {
-      a {
-        color: black;
-      }
-
       font-size: 1.3rem;
-      scroll-margin-top: var(--h-header);
       margin-top: 3rem;
     }
 
     h4 {
-      a {
-        color: black;
-      }
-
       font-size: 1.2rem;
-      scroll-margin-top: var(--h-header);
       margin-bottom: 1rem;
     }
 
     h5 {
-      a {
-        color: black;
-      }
-
       font-size: 1.1rem;
-      scroll-margin-top: var(--h-header);
       margin-bottom: 1rem;
     }
 
     h6 {
-      a {
-        color: black;
-      }
-
       font-size: 1.1rem;
-      scroll-margin-top: var(--h-header);
       margin-bottom: 1rem;
     }
 
     .h7 {
-      a {
-        color: black;
-      }
-      
       font-size: 1rem;
-      scroll-margin-top: var(--h-header);
       margin-bottom: 1rem;
     }
 
@@ -119,14 +100,16 @@
 
     pre {
       code {
-        overflow-x: scroll;
+        overflow-x: auto;
         width: 100%;
         display: block;
         counter-reset: line;
         padding: 1rem;
-        border: 1px solid #274174;
+        border: 1px solid black;
+        border-radius: 0.25rem;
         background-color: #fefeff;
         margin: 2rem 0;
+        font-size: 0.9rem;
       }
     }
 
@@ -168,6 +151,17 @@
 
     ::-webkit-scrollbar-thumb:hover {
       background-color: #b7b7b7;
+    }
+
+    table {
+      th {
+        background-color: #eee;
+      }
+
+      th, td {
+        border: 1px solid black;
+        padding: 0.5rem;
+      }
     }
   }
 
