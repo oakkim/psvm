@@ -34,6 +34,8 @@ export default function Supacus({ siteId, contentId } : SupacusProps) {
         const self = document.currentScript;
         const siteId = self.getAttribute("data-site-id");
         const contentId = self.getAttribute("data-content-id");
+        const ORIGIN = "https://supacus.offwork.kr"
+        const SOURCE = \`\${ORIGIN}/sites/\${siteId}/contents/\${contentId}\`
       
         const iframeResizer = document.createElement('script');
         iframeResizer.async = true;
@@ -44,11 +46,18 @@ export default function Supacus({ siteId, contentId } : SupacusProps) {
           const iframe = document.createElement('iframe');
       
           iframe.id = 'supacus'
-          iframe.src = \`https://supacus.offwork.kr/sites/\${siteId}/contents/\${contentId}\`
+          iframe.src = SOURCE;
           iframe.onload = function() {
             iFrameResize({}, '#supacus');
           }
           self.parentElement.appendChild(iframe);
+
+          window.addEventListener('message', function(e) {
+            console.log(e);
+            if (!!e.data.access_token) {
+              iframe.src = SOURCE + \`?accessToken=\${e.data.access_token}&refreshToken=\${e.data.refresh_token}\`;
+            }
+          });
         };
         console.log(self.parentElement)
         self.parentElement.appendChild(iframeResizer);
