@@ -18,7 +18,7 @@ function generateSiteMap(posts: Post[]) {
        .map(({ _raw, updatedAt }) => {
          return `
        <url>
-           <loc>${`${PUBLIC_URL}/${_raw.flattenedPath}`}</loc>
+           <loc>${`${PUBLIC_URL}/posts/${_raw.flattenedPath}`}</loc>
            <lastmod>${dayjs(updatedAt).format("YYYY-MM-DD")}</lastmod>
        </url>
      `;
