@@ -28,7 +28,7 @@ export default Home;
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
-      posts: allPosts,
+      posts: allPosts.filter(post => !post.draft),
     },
   };
 };

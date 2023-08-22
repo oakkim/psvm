@@ -37,10 +37,19 @@ export const Post = defineDocumentType(() => ({
       type: 'string',
       required: false,
     },
+    draft: {
+      type: 'boolean',
+      default: false,
+      required: false
+    },
     createdAt: {
       type: 'date',
       required: true,
     },
+    updatedAt: {
+      type: 'date',
+      required: true
+    }
   },
 }));
 
