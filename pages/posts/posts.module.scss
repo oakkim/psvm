@@ -26,7 +26,7 @@
   }
 
   .body {
-    p, ul {
+    p, &>ul {
       line-height: 1.8;
       margin-bottom: 1.25rem;
       &>strong {
@@ -178,5 +178,4 @@
       margin-bottom: 1.25rem;
     }
   }
-
 }

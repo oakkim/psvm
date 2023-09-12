@@ -113,3 +113,12 @@ a {
 body {
   font-family: 'pretendard','Roboto Slab',AppleSDGothicNeo,sans-serif;
 }
+
+.math-display {
+  overflow: auto;
+}
+
+.math-display .katex-html > .tag { 
+  position: relative !important;
+  right: -20px !important;
+}

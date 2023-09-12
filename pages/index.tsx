@@ -28,7 +28,7 @@ export default Home;
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
-      posts: allPosts.filter(post => !post.draft),
+      posts: allPosts.filter(post => !post.draft).sort((a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix()),
     },
   };
 };

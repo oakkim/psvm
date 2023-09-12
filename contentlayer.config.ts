@@ -7,6 +7,8 @@ import highlight from 'rehype-highlight';
 import rehypePrettyCode from 'rehype-pretty-code';
 import firefoxLight from './firefox-light.json';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -83,7 +85,8 @@ const contentSource = makeSource({
   documentTypes: [Post],
   mdx: {
     remarkPlugins: [
-      remarkGfm
+      remarkGfm,
+      remarkMath
     ],
     rehypePlugins: [
       [
@@ -91,6 +94,7 @@ const contentSource = makeSource({
         options
       ],
       highlight,
+      rehypeKatex
     ],
   },
 });

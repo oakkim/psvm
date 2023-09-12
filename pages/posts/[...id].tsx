@@ -11,15 +11,25 @@ import PostTableOfContent from '@/components/post/PostTableOfContent';
 import { NextSeo } from 'next-seo';
 
 import style from './posts.module.scss';
-import Giscus from '@/components/Giscus';
 import Separator from '@/components/post/Separator';
 import useTableOfContents from '@/hooks/useTableOfContents';
 import Supacus from '@/components/Supacus';
+import { useEffect, useRef, useState } from 'react';
 
 const PostDetailPage = ({
   post,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const tableOfContent = useTableOfContents(post?.body.code)
+  const [renderedContent, setRenderedContent] = useState<HTMLElement | null>(null);
+  const renderedContentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (renderedContentRef.current == null) {
+      return;
+    }
+    setRenderedContent(renderedContentRef.current)
+  }, [])
+
+  const tableOfContent = useTableOfContents(renderedContent)
 
   return (
     <div className={ "flex w-full max-w-screen-lg gap-3 justify-center " + style.post }>
@@ -41,7 +51,7 @@ const PostDetailPage = ({
           category={post?.category}
           createdAt={post?.createdAt}
         />
-        <PostBody className={ "mt-5 " + style.body }>
+        <PostBody className={ "mt-5 " + style.body } renderedContentRef={renderedContentRef}>
           {post?.body.code}
         </PostBody>
         <Separator/>

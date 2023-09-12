@@ -1,12 +1,14 @@
 import { useMDXComponent } from 'next-contentlayer/hooks';
-import { ReactNode, useState } from 'react';
+import { ReactNode, RefObject, useState } from 'react';
 
 import style from '@/pages/posts/posts.module.scss'
 import CustomTable from '@/components/common/CustomTable';
+import Accordian from '@/components/Accordian';
 
 type PostBodyProps = {
   children: string;
   className?: string;
+  renderedContentRef?: RefObject<HTMLDivElement>
 }
 
 type CustomHeadingProps = {
@@ -44,11 +46,11 @@ const CustomImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
   )
 }
 
-const PostBody = ({ children, className }: PostBodyProps) => {
+const PostBody = ({ children, className, renderedContentRef }: PostBodyProps) => {
   const MDXComponent = useMDXComponent(children || '');
   
   return (
-    <div className={className}>
+    <div ref={renderedContentRef} className={className}>
       <MDXComponent components={{
         h1: ({ children }) => <CustomHeading as="h2">{children}</CustomHeading>,
         h2: ({ children }) => <CustomHeading as="h3">{children}</CustomHeading>,
@@ -58,6 +60,7 @@ const PostBody = ({ children, className }: PostBodyProps) => {
         h6: ({ children }) => <CustomHeading as="div" className="h7">{children}</CustomHeading>,
         img: CustomImage,
         table: ({ children }) => <CustomTable>{children}</CustomTable>,
+        Accordian: Accordian
       }}/>
     </div>
   )

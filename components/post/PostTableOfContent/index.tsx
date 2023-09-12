@@ -1,6 +1,4 @@
-import useTableOfContents, { Heading } from '@/hooks/useTableOfContents';
-import { useMDXComponent } from 'next-contentlayer/hooks';
-import { renderToString } from "react-dom/server";
+import { Heading } from '@/hooks/useTableOfContents';
 
 type PostTableOfContentProps = {
   children?: Heading[] | null;
