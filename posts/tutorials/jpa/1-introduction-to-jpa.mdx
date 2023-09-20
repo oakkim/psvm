@@ -1,0 +1,180 @@
+---
+title: "JPA란?"
+description: "JPA가 무엇일까? JPA를 왜 사용해야할까?"
+createdAt: '2023-09-20T21:47:00.000Z'
+updatedAt: '2023-09-21T08:18:00.000Z'
+preview: null
+draft: false
+tags:
+  - tutorial
+  - jpa
+category: JPA
+---
+
+# JPA란?
+ - JPA(Java Persistence API): 자바 진영의 ORM 기술 표준이다. 자바 **영속성** API라는 뜻으로 직역할 수 있다.
+ - ORM(Object-Relational Mapping): 객체와 관계형 데이터베이스를 매핑한다.
+
+# 영속
+비즈니스 요구사항을 모델링한 객체인 엔티티를 메모리가 아닌 어딘가에 **영구 보관**해야한다. 예를 들어 사용자가 시스템에 회원가입 했는데 이 정보를 어딘가에 영구 보관해야 다음에도 이 사용자를 기억하고 비즈니스 로직을 처리할 수 있다. 이를 영속(永續; 영원히 계속함.)이라고 한다.
+
+그럼 어떻게 객체를 영속할 수 있을까?
+ - 자바 직렬화 기능: 객체를 파일로 변환(직렬화)시키고 그 반대로 되돌리는(역직렬화) 기능을 지원한다. 그러나 직렬화된 객체를 검색하기가 어렵다.
+ - 관계형 데이터베이스: 데이터 중심으로 구조화됨. 그러나 객체지향에서 얘기하는 추상화, 상속, 다형성 같은 개념이 없다. 일반적으로 관계형 데이터베이스를 사용한다.
+
+## DAO에서 SQL을 직접 다루는 방식
+DAO(Data Access Object)는 데이터베이스의 데이터에 접근하기위한 객체다. DAO를 사용하는 건 SQL과 JDBC API를 데이터 접근 계층에 숨기기 위함이다. 그러나 **SQL을 직접 DAO내에서 다루면 여러 문제**가 생긴다.
+
+**1\. 코드가 반복된다**
+
+단순 조회 기능을 구현하는 코드다. 요구사항이 간단함에도 꽤나 복잡하다. 이 과정을 조회/추가/수정/삭제에 대해서 각각 만들어야한다. 이렇게 반복되는 코드는 지루하기도 하지만, 개발자 오류의 가능성을 높인다.
+```java
+public class Member {
+  private String id;
+  private String name;
+}
+
+public class MemberDAO {
+  public Member find(String id) {
+    // 1. 회원 조회용 SQL을 작성한다.
+    String SQL = "SELECT * FROM MEMBER WHERE ID = ?";
+    // 2. JDBC API를 사용해 실행한다.
+    ResultSet rs = stmt.executeQuery(sql, id);        
+    // 3. 조회 결과를 객체로 매핑한다.
+    return new Member(rs.getString("ID"), rs.getString("NAME"));    
+  }
+}
+```
+
+**2\. SQL에 의존적인 개발**
+
+만약 위 Member에 tel 필드가 추가됐다고 가정하자. 그렇다면 DAO의 모든 CRUD SQL을 수정해야할 수 밖에 없다. 혹시나 모를 Member에 의존적인 테이블이 있다면 다른 DAO의 SQL도 수정해야할 수도 있다.
+
+**3\. 데이터 접근 계층 분리가 의미없어진다**
+
+DAO를 사용하는 건 SQL과 JDBC API를 데이터 접근 계층에 숨기기 위함이다. 그러나 2번의 이유로 물리적으론 성공했을지라도 논리적으론 **엔티티와 강한 의존 관계**를 가지게 된다.
+
+**4\. 엔티티를 신뢰할 수 없어진다**
+
+SQL과 엔티티가 강한 의존 관계를 가지게 되면서 이로 실행될 SQL 코드를 신뢰할 수 없어지므로 엔티티를 신뢰할 수 없게된다.
+
+## 패러다임 불일치의 문제
+객체와 관계형 데이터베이스는 지향하는 목적이 서로 달라 **패러다임의 불일치 문제**가 생긴다. 이 문제를 개발자가 중간에서 해결해야하는데, 이 때문에 너무 많은 시간과 코드를 소비한다.
+
+**1\. 상속**
+
+관계형 데이터베이스에서 가장 유사하게 상속을 표현하려면 슈퍼-서브타입 관계를 사용할 수 있다.
+
+예를 들어 사용자 - 선생, 학생 관계의 경우 사용자, 선생, 학생 테이블 총 3개가 만들어진다. 사용자 테이블에는 이 사용자가 어떤 자식과 연관이 있는지 확인하기 위한 DTYPE 컬럼이 있다.<br/>
+
+![테이블 모델](/posts/tutorials/jpa/1-introduction-to-jpa/table-model.svg)
+
+객체 모델은 다음과 같다.
+```java
+abstract class User {
+  int id;
+  String name;
+}
+
+class Teacher extends User {
+  String subject;
+}
+
+class Student extends User {
+  int grade;
+}
+```
+
+만약 Teacher 객체를 저장하고 싶다면 두 SQL을 만들어야한다. Student 객체도 마찬가지로 두 SQL이 필요하다.
+```sql
+INSERT INTO USER ...
+INSERT INTO TEACHER ...
+```
+
+조회할 때도 두 테이블에서 데이터를 불러와야하며, 불러오는 객체의 DTYPE에 따라 달라져야하는 경우도 처리하는 등 여러가지 불일치를 해결하기위해 소모되는 비용이 생긴다.
+
+**2\. 연관관계**
+
+객체는 참조를 사용하고, 테이블은 외래 키를 사용해 연관관계를 가진다. 이 두 차이점이 객체지향 모델링을 포기하게 만들 정도로 극복하기 어렵다.
+이 두 차이점을 개발자가 변환 역할을 해야한다.
+
+아래와 같은 예제가 있다고 치자.
+```java
+class Student extends User {
+  ...
+  // 학년
+  Grade grade;  
+}
+
+class Grade {
+  int id;
+  ...
+}
+```
+ - 조회 : Student.grade에 참조하려면 SQL로 Student를 불러올 때 grade도 같이 불러와야한다. 이는 외래키로 조인해 Grade 테이블도 같이 조회하도록 하면 된다.
+ - 저장 : Student 테이블에 값을 INSERT할 때, Student.grade를 외래키로 저장해야하므로 Student.grade.id를 저장하도록 변환해야한다.
+
+그런데 객체 참조 관계가 이렇게 단순하진 않을 것이다. 객체에서 참조를 활용해 원하는 객체를 찾는 과정을 **객체그래프 탐색**이라 한다.
+```
+Student(학생) - Grade(학년) - Subject(수강과목) - Score(성적)
+    +--------------------------------------------+
+```
+
+예를 들어 특정 학생의 수강과목을 찾으려면 `student.getGrade().getSubjects()`와 같이 탐색할 수 있어야한다.
+그러나, SQL을 직접 다루는 경우 처음 실행하는 SQL에 따라 객체 그래프를 어디까지 탐색할 수 있는지 정해진다.
+
+`StudentDao.get(id)` 메서드만 보고 Grade까지만 가져왔는지, Subject까지 가져왔는지 전혀 예측할 수 없다.
+이 또한 엔티티가 SQL에 논리적으로 종속되어서 생기는 문제다.
+
+# JPA를 왜 써야할까?
+- **생산성**
+
+JPA를 사용하면 자바 컬렉션에 객체를 저장하듯 JPA에게 저장할 객체를 저장하면 된다. SQL을 생성하는 등 반복적인 일은 JPA가 처리해준다.
+```java
+jpa.persist(user);
+
+User user = jpa.find(userId); // 조회
+```
+
+- **유지보수**
+
+SQL을 직접 다루지 않아도 되므로 필드가 변경되어도 수정해야할 코드가 준다.
+
+- **패러다임의 불일치 해결**
+
+상기한 상속, 연관관계, 객체 그래프 탐색과 같은 패러다임의 불일치 문제를 해결해준다.
+간단한 예를 살펴보자.
+```java
+// 1. 상속
+// Teacher 객체든 Student 객체든 상관없이 동일한 코드로 저장가능하다.
+jpa.persist(teacher);
+jpa.persist(student);
+
+// 조회시에도 Teacher 객체를 조회해서 줄 수 있다.
+User user = jpa.find(teacherId);
+
+// 2. 연관관계
+// 학생과 학년 연관관계 설정
+student.setGrade(secondGrade);
+// 학생과 연관관계 함께 저장
+jpa.persist(student);
+
+// 조회시에도 자동으로 외래키를 객체 참조로 변환해준다.
+Student student = jpa.find(Student.class, studentId);
+Grade studentGrade = student.getGrade();
+
+```
+
+- **성능**
+
+JPA는 어플리케이션과 데이터베이스 사이에서 동작한다. 따라서 사이 계층으로 동작하면서 최적화할 수 있는 부분이 많다.
+예를 들어 같은 유저 객체를 두번 조회했을 때 굳이 두번 DB에 조회할 필요없이 첫번째 결과를 돌려주는 식으로 최적화할 수 있을 것이다.
+
+- **데이터 접근 추상화와 벤더 독립성**
+
+관계형 데이터베이스는 많은 벤더들이 있다. 이 벤더마다 사용법이 다른 경우가 많은데, 이를 SQL로 직접 작성했다면 DB 벤더가 바뀔때 모든 SQL을 바꿔야할지도 모른다.
+
+그러나 JPA는 어플리케이션과 데이터베이스 간 추상화된 데이터 접근 계층을 제공해 특정 데이터베이스 기술에 종속되지 않도록 한다. JPA가 어차피 SQL과 관련된 모든 일을 하니 어플리케이션에 미치는 영향이 없다.
+
+# 참조
+ - 자바 ORM 표준 JPA 프로그래밍 / 김영한
