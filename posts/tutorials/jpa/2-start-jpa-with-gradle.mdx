@@ -1,0 +1,217 @@
+---
+title: "JPA 프로젝트 Gradle로 시작하기"
+description: "IntelliJ 커뮤니티 버전을 사용해 JPA 5 버전 프로젝트를 Gradle로 설정하자."
+createdAt: '2023-09-26T20:50:00.000Z'
+updatedAt: '2023-09-26T08:18:00.000Z'
+preview: null
+draft: false
+tags:
+  - tutorial
+  - jpa
+category: JPA
+---
+# IntelliJ 설치하기
+[JetBrains](https://www.jetbrains.com/idea/download) 사이트에 접속해 **IntelliJ IDEA Community Version**를 다운로드한다. 대학생이라면 무료로 Ultimate 라이센스를 받을 수 있으므로 꼭 [학생 인증](https://www.jetbrains.com/community/education/#students)을 하자.
+
+학생 인증을 위해선 대학교, 고등학교 도메인이 붙은 이메일 계정이 있어야한다.
+중, 고등학생이고 학교 도메인 이메일이 없다면 [이 글](https://yclk.tistory.com/1)를 참고해보자.
+깃허브 학생 인증으로 JetBrains 학생 인증을 받을 수 있다.
+
+# H2 데이터베이스 설정하기
+경량 데이터베이스인 H2를 사용해 JPA와 연동해보자.
+
+## H2 데이터베이스 설치하기
+[H2 데이터베이스 다운로드 페이지](https://h2database.com/html/download.html)에서 'Platform-Independent Zip'을 다운로드 받는다. 압축을 풀고 터미널(윈도우는 명령프롬프트)를 켜자.
+
+### 윈도우의 경우
+`H2경로\bin\h2.bat`을 실행한다.
+
+### Mac/Linux의 경우
+터미널을 켜서 아래의 명령어를 실행한다.
+
+```sh
+cd H2_PATH      // 압축해제한 H2 데이터베이스 폴더로 들어간다.
+sudo chmod +x ./bin/h2.sh   // h2.sh 파일의 실행 권한을 부여한다.
+./bin/h2.sh     // h2.sh 파일을 실행한다.
+```
+
+## 데이터베이스 만들기
+H2를 실행하고 나면 윈도우는 하단 윈도우바에, 맥은 상단 메뉴바에 아래와 같은 아이콘이 뜬다. 여기서 'Create a new database...'를 클릭한다.
+
+![H2 데이터베이스 콘텍스트 메뉴를 열자](/posts/tutorials/jpa/2-start-jpa-with-gradle/h2-db-context-menu.png)
+
+나머지는 건들이지 않고, 비밀번호를 입력해주고 'Create' 버튼을 클릭한다.
+
+![H2 데이터베이스를 만들자](/posts/tutorials/jpa/2-start-jpa-with-gradle/h2-create-db.png)
+
+## 웹 콘솔에 접속하기
+이제 데이터베이스에 접속해보자. H2는 웹 콘솔을 기본적으로 제공한다.
+
+http://localhost:8082 에 접속해보자. 저장한 설정을 'Generic H2 (Server)'로 선택하고 아래와 같이 정보를 입력한다. 그리곤 '연결'을 클릭해 접속해본다.
+
+![H2 웹 콘솔 로그인](/posts/tutorials/jpa/2-start-jpa-with-gradle/h2-web-login.png)
+
+## 데모용 Member 테이블 만들기
+콘솔에 SQL을 입력해 간단한 테이블을 하나 만들자.
+
+```sql
+CREATE TABLE MEMBER (
+    ID VARCHAR(255) NOT NULL,
+    NAME VARCHAR(255),
+    AGE INTEGER NOT NULL,
+    PRIMARY KEY (ID)
+);
+```
+
+# IntelliJ로 프로젝트 만들기
+IntelliJ를 켜서 빈프로젝트를 하나 만들자. 이떄 설정은 아래와 같이 하자. 사용하는 언어는 `Java`, Build System은 `Gradle`, Gradle DSL은 `Kotlin`으로 한다. 원한다면 언어는 Kotlin으로 해도 상관없다.
+
+Gradle은 간단히 얘기해서 라이브러리를 관리해주는 도구다. 프로젝트 생성 후 `build.gradle.kts` 파일에 적힌 내용을 살펴보면 `depdencies`라고 적힌 영역에 현재 사용하는 라이브러리의 목록을 볼 수 있다.
+
+JDK가 없다면 JDK를 설치한다. IntelliJ에서 쉽게 다운로드 가능하다.
+
+![IntelliJ 프로젝트 만들기](/posts/tutorials/jpa/2-start-jpa-with-gradle/jpa-prj-setting-1.png)
+
+## JPA 라이브러리 설치하기
+프로젝트 루트에 있는 `build.gradle.kts`을 열어 `depdencies` 내부에 아래 내용을 넣는다. 우리는 JPA의 구현체로 `Hibernate`를 사용한다. 이외에도 여러 구현체가 있지만 가장 많이 쓰인다.
+
+```kotlin
+implementation("org.hibernate:hibernate-entitymanager:5.6.15.Final")
+implementation("com.h2database:h2:2.2.224")
+```
+
+그러곤 에디터 위에 뜨는 코끼리 아이콘(Gradle 마스코트)을 눌러 변경된 내용을 동기화한다.
+
+## 메인 클래스 만들기
+`src/main/java` 경로에 `Main.java`를 만들어 아래 내용을 채워 넣는다.
+```java
+public class Main {
+    // Tip: IntelliJ 에서는 psvm 이라는 키워드로 빠르게 메인 메서드를 만들 수 있다.
+    public static void main(String[] args) {    
+        
+    }
+}
+```
+
+# JPA 사용하기
+간단하게 금방 만든 Member 테이블을 연동해 데이터를 조작하는 코드를 만들어보자.
+
+## 객체 매핑하기
+먼저 애플리케이션에서 사용할 Member 클래스를 만들어보자.
+```java
+public class Member {
+    private String id;
+    private String name;
+    private int age;
+
+    // Getter와 Setter를 만든다.
+    // IntelliJ는 Getter와 Setter를 코드 자동 생성 기능으로 쉽게 만들 수 있다.
+    // 윈도우는 Alt+Insert, 맥은 Command+N을 누르거나 상단 메뉴 바에 'Code > Generate'를 클릭한다.
+    // 'Getter And Setter'를 클릭하고 모든 필드를 선택해서 'OK'를 클릭하면 자동생성 끝.
+}
+```
+
+데이터베이스와 클래스를 연결하기 위해선 JPA 에서 제공하는 매핑 어노테이션을 사용한다. 이를 추가해보자.
+```java
+import javax.persistence.*;
+
+@Entity
+@Table(name = "MEMBER")
+public class Member {
+    @Id
+    @Column(name = "ID")
+    private String id;
+
+    // 나머지는 그대로 두자.
+    ...
+}
+
+```
+
+## persistence.xml 설정
+JPA 는 `persistence.xml`을 사용해서 필요한 설정 정보를 관리한다. `src/main/resources/META-INF` 폴더를 만들어 `persistence.xml` 파일을 만들고 아래 내용을 채워두자.
+빌드 시스템을 Gradle로 쓰는 경우, 엔티티를 class로 명시해줘야한다.
+
+persistence의 xmlns가 xmlns.jcp.org 도메인인지 다시한번 확인하자. (기본적으로 IntelliJ는 다른 네임스페이스를 추천해준다.)
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+    <persistence-unit name="jpabook">
+        <class>Member</class>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value="비밀번호를 입력해주세요"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test"/>
+            <!--현재 사용할 데이터베이스의 방언을 선택한다. 이 부분만 바꾸면 자바코드를 바꾸지 않아도 다른 회사의 DB를 쓸 수 있다.-->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+
+            <!--옵션, 이지만 JPA가 어떤 SQL을 만들어내는지 보고 싶으면 넣자.-->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+            <property name="hibernate.id.new_generator_mappings" value="true"/>
+        </properties>
+    </persistence-unit>
+</persistence>
+```
+
+## main 메서드 작성하기
+`Main.java`로 돌아가서 `main` 메서드에 아래 내용을 넣어보자. 실행 과정을 하나하나 짚어보자.
+
+1. `EntityManagerFactory`를 만든다. `persistence.xml` 파일에 등록했던 `persistence-unit`의 이름을 인자로 넣어 만든다.
+   - 팩토리를 만드는 비용은 매우 크므로 단 한번만 만들어서 사용해야한다.
+2. 팩토리에서 `EntityManager`를 만든다. 이 매니저를 통해 엔티티를 DB에 등록/수정/삭제/조회할 수 있다.
+   - 매니저는 쓰레드 간에 공유되거나 재사용하면 안된다.
+3. 매니저에서 `Transaction`을 만든다. `begin`, `commit`, `rollback` 메서드를 호출해 트랜잭션을 각각 시작, 커밋, 롤백을 시킬 수 있다.
+4. 트랜잭션 사이에 `logic` 메서드를 호출한다. 예외가 발생하면 트랜잭션을 롤백한다.
+5. 마지막으로 매니저와 팩토리를 `close` 메서드를 호출해 종료한다.
+
+```java
+var emf = Persistence.createEntityManagerFactory("jpabook");
+var em = emf.createEntityManager();
+var tx = em.getTransaction();
+
+try {
+    tx.begin();
+    logic(em);
+    tx.commit();
+} catch (Exception e) {
+    tx.rollback();
+    e.printStackTrace();
+} finally {
+    em.close();
+}
+emf.close();
+```
+
+## logic 메서드 작성하기
+`Main` 클래스에 아래 메서드를 추가하고 실행해본다. 실행하면 콘솔창에 실제로 실행되는 SQL이 로그로 남는 걸 확인할 수 있다. (보이지 않는다면 persistence.xml 파일을 다시 확인하자. 또는 디버깅 모드로 실행해보자.)
+
+```java
+class Main {
+    ...
+  
+    public static void logic(EntityManger em) {
+        Member m = new Member();
+        m.setId("1");
+        m.setName("psvm");
+        m.setAge(23);
+
+        // 등록한다.
+        em.persist(m);
+        // 수정한다.
+        m.setName("psvm.kr");
+
+        // 아이디가 "1"인 Member를 조회한다.
+        Member foundMember = em.find(Member.class, "1");
+        System.out.println(foundMember.getName());
+
+        // 삭제한다.
+        em.remove(m);
+    }
+}
+```
+
+이렇게 JPA를 사용해볼 수 있는 환경을 갖추어봤다.
