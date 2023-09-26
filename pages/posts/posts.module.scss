@@ -1,3 +1,26 @@
+// Breakpoints
+$breakpoint-mobile: 335px;
+$breakpoint-tablet: 758px;
+$breakpoint-desktop: 1024px;
+
+@mixin mobile {
+  @media (min-width: #{$breakpoint-mobile}) and (max-width: #{$breakpoint-tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-tablet}) and (max-width: #{$breakpoint-desktop - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-desktop}) {
+    @content;
+  }
+}
+
 .post {
   word-wrap: break-word;
   word-break: break-all;
@@ -31,6 +54,23 @@
       margin-bottom: 1.25rem;
       &>strong {
         color: black;
+      }
+    }
+
+    li {
+      margin: 0 0 0 30px;
+      padding: 5px 0px;
+    }
+
+    ol {
+      & > li {
+        list-style-type: decimal;
+      }
+    }
+
+    ul {
+      & > li {
+        list-style: square;
       }
     }
 
@@ -120,18 +160,25 @@
         margin: 0 auto;
       }
 
+
+      @include tablet {
+        img {
+          width: 80%;
+        }
+      }
+
+      @include desktop {
+        img {
+          width: 80%;
+        }
+      }
+
       .img-alt {
         display: block;
         width: 100%;
         text-align: center;
         color: #666;
       }
-    }
-    
-    li {
-      list-style: square;
-      margin: 0 0 0 30px;
-      padding: 5px 0px;
     }
 
     /* custom scrollbar */
