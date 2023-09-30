@@ -8,7 +8,7 @@ const CustomTable = ({
   children,
 }: CustomTableProps) => {
   return (
-    <div className="mx-3 overflow-auto">
+    <div className="mx-3 overflow-auto my-8">
       <table className="w-full border-collapse whitespace-nowrap">{children}</table>
     </div>
   );
