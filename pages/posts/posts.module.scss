@@ -49,11 +49,14 @@ $breakpoint-desktop: 1024px;
   }
 
   .body {
-    p, &>ul {
+    p, ul {
       line-height: 1.8;
       margin-bottom: 1.25rem;
       &>strong {
         color: black;
+      }
+      ul {
+        margin-bottom: 0;
       }
     }
 
