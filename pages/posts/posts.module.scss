@@ -63,6 +63,10 @@ $breakpoint-desktop: 1024px;
     li {
       margin: 0 0 0 30px;
       padding: 5px 0px;
+      
+      p {
+        margin-bottom: 0;
+      }
     }
 
     ol {
