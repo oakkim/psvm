@@ -9,6 +9,7 @@ import firefoxLight from './firefox-light.json';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import rehypeExternalLinks from 'rehype-external-links';
 
 export const Post = defineDocumentType(() => ({
   name: 'Post',
@@ -92,6 +93,13 @@ const contentSource = makeSource({
       [
         rehypePrettyCode,
         options
+      ],
+      [
+        rehypeExternalLinks,
+        {
+          target: ['_blank'],
+          rel: []
+        }
       ],
       highlight,
       rehypeKatex
