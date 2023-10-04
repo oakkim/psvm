@@ -74,6 +74,18 @@ $breakpoint-desktop: 1024px;
       }
     }
 
+    a {
+      color: #0074E8;
+
+      * {
+        color: #0074E8;
+      }
+
+      code {
+        text-decoration: underline;
+      }
+    }
+
     * {
       color: #131516;
     }
@@ -136,6 +148,10 @@ $breakpoint-desktop: 1024px;
       background-color: #eff3fb;
       color: #0074E8;
       padding: 2px 4px;
+      
+      a {
+        text-decoration: underline;
+      }
     }
 
     pre {
