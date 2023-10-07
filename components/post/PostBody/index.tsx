@@ -39,7 +39,7 @@ const CustomImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
   return (
     <span className={style.img}>
       <img {...props}/>
-      <span className={style['img-alt']}>
+      <span className={`${style['img-alt']} mt-3`}>
         {props.alt}
       </span>
     </span>
