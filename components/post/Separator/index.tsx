@@ -1,6 +1,10 @@
-const Separator = () => {
+type SeperatorProps = {
+  className?: string
+}
+
+const Separator = ({ className } : SeperatorProps) => {
   return (
-    <div>--------------------</div>
+    <div className={className}>--------------------</div>
   )
 };
 
