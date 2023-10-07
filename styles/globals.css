@@ -110,8 +110,15 @@ a {
 @tailwind components;
 @tailwind utilities;
 
+code {
+  font-family: 'Jetbrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 body {
-  font-family: 'pretendard','Roboto Slab',AppleSDGothicNeo,sans-serif;
+  letter-spacing: -0.3px;
+  
+  font-family: 'Jetbrains Mono','pretendard','Roboto Slab',AppleSDGothicNeo,sans-serif;
+  /* font-family: monospace, 'pretendard' */
 }
 
 .math-display {
