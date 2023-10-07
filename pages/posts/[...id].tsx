@@ -48,6 +48,7 @@ const PostDetailPage = ({
         <PostHeader
           title={post?.title}
           description={post?.description}
+          author={"김대용"}
           category={post?.category}
           createdAt={post?.createdAt}
         />
