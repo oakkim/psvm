@@ -52,6 +52,7 @@ const PostDetailPage = ({
           category={post?.category}
           createdAt={post?.createdAt}
         />
+        <Separator/>
         <PostBody className={ "mt-5 " + style.body } renderedContentRef={renderedContentRef}>
           {post?.body.code}
         </PostBody>
