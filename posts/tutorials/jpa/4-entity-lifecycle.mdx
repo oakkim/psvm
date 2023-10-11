@@ -1,0 +1,333 @@
+---
+title: "JPA 엔티티 라이프사이클에 대해 탐구해보자"
+description: "JPA 엔티티 라이프사이클에 대해 탐구해보자"
+createdAt: '2023-10-05T21:54:00.000Z'
+updatedAt: '2023-10-12T08:00:00.000Z'
+draftCompletedAt: '2023-10-12T08:00:00.000Z'
+preview: null
+draft: false
+tags:
+  - tutorial
+  - jpa
+category: JPA
+---
+
+영속성 컨텍스트가 무엇인지에 대한 이해가 필요하다. [여기서](/posts/tutorials/jpa/3-em-and-persistence-context) 먼저 영속성 컨텍스트의 이해를 하고 오면 좋다.
+
+JPA의 명세 내용을 기준으로 작성했고, 하이버네이트의 구현을 바탕으로 설명된 내용이 있으므로 참고하길 바란다.
+
+# 엔티티의 생명주기
+엔티티는 영속성 컨텍스트에 의해 생명주기가 관리된다. 생명주기는 4가지 상태가 존재한다.<sup>[1]</sup>
+
+ - **비영속 (new/transient)** : 영속성 컨텍스트가 모르는 상태
+ - **영속 (persist)** : 영속성 컨텍스트에 저장되고, 기억되고 있는 상태
+ - **준영속 (detached)** : 영속 상태였다가 영속성 컨텍스트가 더 이상 기억하지 않는 상태
+ - **삭제 (removed)** : 영속성 컨텍스트에 엔티티가 삭제될거라고 기록한 상태. 즉, **삭제되는걸 기다리는 상태**
+
+즉, 영속성 컨텍스트가 기억하고 있는지 없는지로 나눌 수 있다.
+ - **기억 있음** : 영속, 삭제
+ - **기억 없음** : 비영속, 준영속
+
+엔티티들의 생명주기를 관리하기 위해서는 엔티티 매니저가 제공하는 연산(메서드)을 사용한다.
+이 그림으로 알 수 있듯이, 영속성 컨텍스트와 **관련 있는 영속, 삭제 상태는 플러시를 거쳐 데이터베이스와 동기화가 되는 대상**이다.
+
+![엔티티 생명주기](/posts/tutorials/jpa/3-em-and-persistence-context/entity-lifecycle.svg)
+
+JPA로 엔티티를 조회, 추가, 수정, 삭제를 해보며 각 상태에 관해 이해를 해보자.
+
+# 엔티티 저장하기
+아래와 같은 엔티티 클래스가 있다고 가정하자.
+```java
+@Entity
+@Table(name = "MEMBER")
+public class Member {
+    @Id
+    @Column(name = "ID")
+    private String id;
+    private String name;
+    private int age;
+    
+    // Getters and Setters...
+}
+```
+
+엔티티를 저장하기 위해선 엔티티 인스턴스를 만들어야한다. 아래처럼 갓 만들어진 인스턴스는 전혀 **영속성 컨텍스트가 모른다**.
+이 상태를 **비영속**이라고 한다.
+```java
+Member member = new Member("1", "김대용", 23);
+```
+
+![비영속 상태의 엔티티](/posts/tutorials/jpa/4-entity-lifecycle/entity-transient.svg)
+
+
+이를 저장(영속)하기 위해선 영속성 컨텍스트에 1차 캐시에 엔티티 인스턴스를 저장해야한다.
+이는 엔티티 매니저의 `persist()` 메서드를 통해 저장할 수 있다. 해당 메서드가 호출된 후 엔티티는 **영속** 상태가 된다.
+영속성 컨텍스트의 1차 캐시는 `@Id`로 매핑한 식별자를 키로, 엔티티 인스턴스를 값으로 가지는 Map이다.
+
+```java
+EntityManager em = entityManagerFactory.createEntityManager();
+// 트랜잭션 생략
+em.persist(member);
+```
+
+![영속성 컨텍스트에 저장된 엔티티](/posts/tutorials/jpa/4-entity-lifecycle/entity-persist.svg)
+
+## 트랜잭션 커밋과 플러시
+엔티티 매니저를 통해 엔티티 저장, 수정, 삭제를 할 땐 트랜잭션을 열어야한다.
+작업이 완료된 후에는 커밋을 통해 트랜잭션을 반영한다.
+
+```java
+Transaction tx = em.getTransaction();
+tx.begin();   // 트랜잭션 시작
+
+// 엔티티 저장, 수정, 삭제 작업들
+em.persist(member1);
+em.persist(member2);
+em.persist(member3);
+
+tx.commit();  // 트랜잭션 커밋
+```
+
+[이전 글](/posts/tutorials/jpa/3-em-and-persistence-context#%EC%98%81%EC%86%8D%EC%84%B1_%EC%BB%A8%ED%85%8D%EC%8A%A4%ED%8A%B8%EB%8A%94_%ED%95%9C%EA%BA%BC%EB%B2%88%EC%97%90_sql%EC%9D%84_%EC%A0%84%EB%8B%AC%ED%95%9C%EB%8B%A4.)에서도 언급했듯이,
+이때 영속성 컨텍스트는 엔티티 영속 요청이 일어날 때마다 데이터베이스에 SQL을 날리지 않는다.
+대신 엔티티의 상태 변경 사항을 내부에 저장하고, `commit()`이 호출될 때 이를 한꺼번에 SQL로 변환해 데이터베이스에 날린다.
+이 절차를 **플러시**(flush)라고 한다. 이는 **쓰기 지연**(write-behind) 전략이라고 하고,
+이 때 영속성 컨텍스트는 엔티티의 상태 변경사항을 저장하는 **트랜잭션 내 쓰기 지연 캐시**로써 동작한다.
+
+![엔티티 매니저를 통한 플러시 과정](/posts/tutorials/jpa/4-entity-lifecycle/entity-flush.svg)
+
+# 엔티티 조회하기
+엔티티를 조회하기 위해선 영속성 컨텍스트는 우선 1차 캐시에 해당 엔티티가 있는지 확인한다.
+있으면 그 엔티티를 돌려주고, 없으면 데이터베이스에서 가져온다.
+이때 엔티티는 **영속** 상태다.
+
+## 영속성 컨텍스트에 저장된 엔티티 조회 (1차 캐시)
+방금전에 영속성 컨텍스트에 저장한(1차 캐시에 저장된) 엔티티를 조회해보자. 엔티티 매니저의 `find()` 메서드로 조회할 수 있다.
+영속성 컨텍스트가 기억하고 있는 엔티티라서 데이터베이스를 거치지 않고 **캐싱된 엔티티를 돌려준다.**
+
+```java
+Member result = em.find(Member.class, "1");
+```
+
+![DB를 거치지 않고도 영속성 컨텍스트에 저장된 엔티티를 돌려준다](/posts/tutorials/jpa/4-entity-lifecycle/entity-find-in-first-level-cache.svg)
+
+캐싱된 엔티티를 받아오는 덕분에 두 엔티티 변수가 같은 주소를 바라본다. 즉, **동일성을 지닌다.**
+```java
+member == result;   // true
+```
+
+## 영속성 컨텍스트가 모르는 엔티티 조회
+영속성 컨텍스트가 모르는 엔티티면 그제서야 데이터베이스에서 데이터를 불러온다. 이때 DB에서 불러온 엔티티를 영속성 컨텍스트에 캐싱한다.
+```java
+// 영속성 컨텍스트가 모르는 엔티티 ID
+Member unknownEntityResolveResult = em.find(Member.class, "2");
+```
+
+![영속성 컨텍스트가 모르는 엔티티는 DB에서 가져오고 캐싱한다](/posts/tutorials/jpa/4-entity-lifecycle/entity-find-unknown.svg)
+
+# 엔티티 수정하기
+엔티티를 수정하기 위해서는 별 다른 호출이 필요없다. 그냥 영속 상태의 엔티티를 수정하면 끝이다.
+```java
+Transaction tx = em.getTransaction();
+tx.begin();   // 트랜잭션 시작
+
+Member member = em.find(Member.class, "1");
+member.setName("김머용");
+member.setAge(24);
+
+tx.commit();  // 트랜잭션 커밋
+```
+
+영속성 컨텍스트는 1차 캐시에 엔티티를 보관할 때(영속되거나 조회 시), 엔티티를 복사해 **스냅샷**도 같이 보관한다.
+그래서 스냅샷과 비교해 달라진 점이 있는지 알 수 있다. 이를 **더티 체킹**(dirty checking)라고 한다.
+이는 커밋 또는 플러시 시점에 일어난다.
+
+![엔티티와 스냅샷을 비교해 쓰기 지연 캐시에 작업을 추가한다.](/posts/tutorials/jpa/4-entity-lifecycle/entity-update.svg)
+
+정리하자면, 트랜잭션 커밋 또는 플러시 요청이 일어나면 1차 캐시에 있는 엔티티와 스냅샷을 비교한다.
+만약 달라진 점이 있다면 쓰기 지연 캐시에 엔티티 수정이 일어났음을 기록한다.
+이후 쓰기 지연 캐시에 기록된 변경 사항을 SQL로 변환해 데이터베이스로 전달하고 commit을 한다.
+
+# 엔티티 삭제하기
+엔티티를 삭제하기 위해서는 `remove()` 메서드를 사용한다.
+```java
+Transaction tx = em.getTransaction();
+tx.begin();   // 트랜잭션 시작
+
+Member member = em.find(Member.class, "1");
+em.remove(member);
+
+tx.commit();  // 트랜잭션 커밋
+```
+
+영속성 컨텍스트는 1차 캐시에 엔티티가 삭제됐다고 표기하고, 쓰기 지연 캐시에 엔티티 삭제가 일어났음을 기록한다.
+**삭제가 됐다고 기록하는거지 엔티티를 1차 캐시에서 삭제하는게 아니다.**
+이때 엔티티는 **삭제** 상태다.
+
+![1차 캐시에 엔티티가 삭제됐다고 표기하고, 쓰기 지연 캐시에 삭제 기록을 남겨둔다.](/posts/tutorials/jpa/4-entity-lifecycle/entity-remove.svg)
+
+마찬가지로 트랜잭션 커밋 또는 플러시 요청이 일어나면 쓰기 지연 캐시에 기록된 삭제 기록을 바탕으로 DELETE SQL이 만들어져 데이터베이스에 전달한다.
+
+<Accordian title="흔히들 remove는 영속성 컨텍스트에서 엔티티를 삭제한다고 말한다.">
+**그러나 아니다.**
+
+JPA 명세에 따르면, removed 상태는 다음과 같이 설명되어있다.
+
+> A removed entity instance is an instance with a persistent identity, **associated with a persistence context**, that will be removed from the database upon transaction commit
+
+분명히 영속성 컨텍스트와 연관이 되어있다고 말한다. 즉, 영속성 컨텍스트에서 삭제되지 않는다!
+
+실제로 Hibernate의 코드를 봐도 `EntityManager`를 상속하는 `Session`내 1차 캐시인 `PersistenceContext`에서 해당 엔티티를 삭제하지 않고, '삭제' 상태로 전환한다.
+```java
+// DefaultDeleteEventHandler.java:277
+persistenceContext.setEntryStatus( entityEntry, Status.DELETED );
+```
+</Accordian>
+
+# 준영속 상태
+트랜잭션이 끝나고나면 영속 상태의 엔티티는 **준영속** 상태로 바뀐다.
+즉, 영속성 컨텍스트에서 관리되던 영속 상태의 엔티티가 더이상 관리되지 않는 상태다.
+
+준영속 상태로 바뀌는 경우는 총 네가지가 있다.
+1. `tx.commit()` / `tx.rollback()` : 트랜잭션 범위 영속성 컨텍스트에서 트랜잭션이 커밋되거나 롤백됄 때
+2. `em.close()` : 엔티티 매니저를 닫을 때. (사실 이때 예외사항이 있다. 추후 설명)
+3. `em.detach()` : 엔티티 매니저로 특정 엔티티를 준영속 상태로 만들 때
+4. `em.clear()` : 엔티티 매니저로 영속성 컨텍스트를 초기화시킬 때
+5. 엔티티가 깊은 복사됐거나 직렬화 됐을 때 : 당연히 영속성 컨텍스트가 가지고 있는 엔티티와는 다르니깐.
+
+**준영속 상태는 식별자 값을 가지고 있는 비영속 상태**와 마찬가지다. 1차 캐시, 쓰기 지연, 더티 캐싱, 지연 로딩 등 영속성 컨텍스트가 제공하는 기능을 사용할 수 없다.
+
+<Accordian title="JPA 구현체간 이식성을 위해 준영속 상태로 만들기 전 플러시를 하자.">
+특히 3번과 4번의 경우, 개발자가 임의로 영속성 컨텍스트를 조작해 엔티티를 준영속 상태로 만드는 방법이다.
+이 경우, JPA 구현체간 이식성을 위해 준영속 상태로 만들기 전 플러시를 실행하자.
+왜냐하면, JPA 구현체들은 플러시를 임의로 실행할 수 있기 때문이다.
+직접 `flush()`를 실행하지 않더라도 데이터베이스에 SQL이 부분적으로 전송됐을 수 있단 얘기다.
+
+JPA에서는 위와 같이 말하는데, 반면 하이버네이트에서는 좀 반대로 얘기한다.
+엔티티 변경사항이 `flush()`되어 데이터베이스에 연동되는걸 원하지 않으면 준영속 상태로 만들어라고한다.
+
+누구는 목적이 엔티티 변경사항 플러시를 막기위해서 준영속 상태로 만들어라고 하고,
+누구는 이식성을 위해 준영속을 하기 전 플러시를 하라고 한다. 누구의 말을 들어야하나.
+
+</Accordian>
+
+## detach()로 준영속 상태 전환
+엔티티 매니저가 제공하는 `detach()` 메서드를 이용해 **준영속** 상태로 전환할 수 있다.
+엔티티가 준영속 상태로 바뀔 때, **영속성 컨텍스트의 1차 캐시에서 삭제**된다.
+따라서 준영속 상태로 바뀐 엔티티는 영속성 컨텍스트에 의해 관리되지 않으므로 **데이터베이스와 연동이 되지 않는다.**
+
+```java
+Transaction tx = em.getTransaction();
+tx.begin();   // 트랜잭션 시작
+
+em.persist(member);
+em.detach(member);
+
+tx.commit();  // 트랜잭션 커밋
+```
+
+**아까 `remove()`랑 헷갈리면 안된다!**
+`remove()`는 데이터베이스에서 엔티티를 삭제하기 위해 영속성 컨텍스트가 해당 엔티티를 기억하고 있다. 대신, 이 엔티티가 삭제되어야한다고 기록을 해둔다.
+**반면 `detach()`는 1차 캐시에서 완전히 없애버린다.**
+![1차 캐시에서 엔티티를 삭제한다.](/posts/tutorials/jpa/4-entity-lifecycle/entity-detach.svg)
+
+<Accordian title="Hibernate에서 detach() 동작이 예상과는 살짝 다르게 동작하더라.">
+`EntityManager`를 상속받은 `Session`은
+1차 캐시 역할을 하는 `PersistenceContext`, 쓰기 지연 캐시 역할을 하는 `ActionQueue`로 구성되어있다.
+
+detach가 일어나게되면, 하이버네이트가 1차 캐시인 `PersistenceContext`에서 엔티티를 삭제하지만,
+쓰기 지연 캐시 `ActionQueue`에서 해당 엔티티와 연관된 액션을 삭제하지 않는다.
+
+예를 들어, 아래와 같은 코드에서 `member1`은 준영속 상태라서 INSERT되지 않고, `member2`는 영속 상태라서 INSERT가 될거라 예상할 수 있다.
+```java
+tx.begin();   // 트랜잭션 시작
+Member member1 = new Member("1", "김대용", 23);
+em.persist(member1);
+em.detach(member1);
+
+Member member2 = new Member("2", "머용", 32);
+em.persist(member2);
+
+tx.commit();  // 트랜잭션 커밋
+```
+그러나, 이 코드는 오류가 발생한다.
+트랜잭션이 커밋되면서 `ActionQueue`에 있는 액션을 차례로 수행하는데,
+`member1` 엔티티의 삽입 요청 액션이 남아있어 이를 수행한다.
+당연하게도 이 엔티티는 영속성 컨텍스트가 모르기 때문에 오류가 발생한다.
+
+그런데 왜! 이렇게 동작하는지는 모르겠다. 1차 캐시에서는 삭제하면서, 왜 쓰기 지연 캐시에서는 삭제하지 않을까?
+하이버네이트 가이드 문서는 엔티티 변경사항이 `flush()`되어 데이터베이스에 연동되는걸 원하지 않으면 준영속 상태로 만들어라고한다.
+근데 왜 쓰기 지연 캐시에서 삭제하지 않을까?
+그래서 [하이버네이트 포럼에 물어봤다.](https://discourse.hibernate.org/t/assertionfailure-occurs-detach-after-persist/8363) 답변이 달리면 그때 업데이트하겠다.
+</Accordian>
+
+## clear()로 준영속 상태 전환
+`detach()`가 단일 엔티티를 영속성 컨텍스트에서 삭제하는거라면 `clear()`는 모든 영속 상태의 엔티티를 삭제해 준영속 상태로 만든다.
+
+```java
+Member member1 = em.find(Member.class, "1");
+Member member2 = new Member(Member.class, "2");
+em.clear();
+```
+
+![1차 캐시에서 모든 엔티티를 삭제한다.](/posts/tutorials/jpa/4-entity-lifecycle/entity-clear.svg)
+
+## close()로 준영속 상태 전환
+`close()`는 어플리케이션 관리형 엔티티 매니저를 종료하는 메서드다.
+어플리케이션 관리형 엔티티 매니저는 엔티티 매니저 팩토리를 통해 직접 만든 엔티티 매니저를 말한다.
+이 메서드는 엔티티 매니저를 종료함으로써 영속성 컨텍스트도 같이 종료된다. 이때 영속 상태의 엔티티들은 모두 준영속 상태로 전환된다.
+![영속성 컨텍스트가 종료된다.](/posts/tutorials/jpa/4-entity-lifecycle/entity-close.svg)
+
+그러나 예외사항이 하나 있다.
+만약 **해당 엔티티 매니저에 트랜잭션이 실행중**이라면,
+엔티티 매니저가 종료되더라도 트랜잭션이 끝날때까지 **영속성 컨텍스트는 종료되지 않는다.**<sup>[2]</sup>
+영속성 컨텍스트가 종료되지 않았으므로 지연 로딩 기능이 동작하고, 쓰기 지연 캐시가 정상적으로 데이터베이스에 반영된다.
+
+
+```java
+tx.begin();   // 트랜잭션 시작
+Member member = new Member("1", "김대용", 23);
+em.persist(member);
+em.close();
+tx.commit();  // 트랜잭션 커밋
+```
+
+## merge()로 다시 영속 상태 전환
+준영속 상태의 엔티티를 영속 상태로 전환하기 위해서는 `merge()` 메서드를 사용한다.
+이 메서드의 동작방식을 수도코드로 살펴보자.
+```js
+// merge 동작 방식 설명용 수도코드
+function merge(준영속엔티티) {
+  // 1. DB 또는 1차 캐시에서 준영속엔티티의 식별자를 이용해 엔티티를 불러온다.
+  var 새엔티티 = find(준영속엔티티.id)
+
+  // 2. 새엔티티의 내용을 준영속엔티티의 내용으로 바꾼다.
+  새엔티티.name = 준영속엔티티.name
+  새엔티티.age = 준영속엔티티.age
+
+  // 3. 새엔티티를 돌려준다.
+  return 새엔티티
+}
+```
+`merge()`가 실행되고나면 넘겨줬던 준영속 엔티티를 그대로 돌려주지 않고, `find()`로 불러온 새 엔티티를 돌려준다.
+이때 새 엔티티의 내용은 준영속 엔티티의 내용으로 바뀐 상태이다. **즉, 메서드에 전달한 엔티티와 돌려받은 엔티티는 서로 다르다.**
+따라서 준영속 엔티티를 참조하던 변수를 영속 엔티티를 참조하도록 바꾸는게 안전하다.
+
+```java
+member = em.merge(member);
+```
+
+엔티티를 병합할 때 `find()`해 불러온 영속 상태 엔티티의 내용을 준영속 엔티티의 내용으로 바꿨다.
+당연히 1차 캐시에 스냅샷해둔 내용과 달라졌기 때문에, `flush()`가 실행되면 더티 체킹이 일어나
+변경된 내용을 데이터베이스에 반영한다.
+
+### 비영속을 merge()하면 어떻게 될까?
+병합은 준영속, 비영속을 상관하지 않는다. 식별자 값이 있으면(준영속) 엔티티를 조회해 병합하고, 없다면(비영속) 새로운 엔티티를 만들어 병합한다.
+따라서 병합은 `save or update` 기능을 수행한다.
+
+그러나 난 가능하다면 식별자 값이 있는지 직접 검사해 있다면 `merge()` 없다면 `persist()`를 호출하도록 하는게 좋다 생각한다.
+
+# 참조
+ - [1] : Oracle, ["JSR 338: Java Persistence API, Version 2.1"](https://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf), p.80
+ - [2] : Oracle, ["JSR 338: Java Persistence API, Version 2.1"](https://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf), p.77
+ - 김영한, "자바 ORM 표준 JPA 프로그래밍"

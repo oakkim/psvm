@@ -1,0 +1,80 @@
+<mxfile host="65bd71144e">
+    <diagram id="GZn-C-g2Wkq3tfYCuaNg" name="Page-1">
+        <mxGraphModel dx="611" dy="448" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="73" value="" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="50" width="480" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="79.81" width="260" height="110.19" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontSize=12;" parent="1" source="43" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="300" y="135.1428571428571" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="43" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="89.81" width="100" height="90.19" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;영속성 컨텍스트&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="59.81" width="130" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=7.999999999999986;" parent="1" vertex="1">
+                    <mxGeometry x="480" y="115" width="50" height="39.81" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="&lt;span style=&quot;font-size: 12px;&quot;&gt;쓰기 지연 캐시&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="89.81" width="100" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="49" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="300" y="117.36" width="110" height="65.10000000000001" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;INSERT MEM...&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" parent="49" vertex="1">
+                    <mxGeometry width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;INSERT MEM...&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" parent="49" vertex="1">
+                    <mxGeometry x="10" y="7.590000000000003" width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;INSERT MEM...&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" parent="49" vertex="1">
+                    <mxGeometry x="20" y="15.100000000000009" width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;SQL 변환&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" parent="49" vertex="1">
+                    <mxGeometry x="20" y="35.10000000000001" width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" value="" style="edgeStyle=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="39" target="38" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="420" y="137" as="sourcePoint"/>
+                        <mxPoint x="450" y="137.14666666666668" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="57" value="" style="edgeStyle=none;html=1;fontSize=12;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="39" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="129" y="135" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="56" value="em.flush()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;spacing=0;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="117" width="70" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="tx.commit()" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;spacing=0;" parent="1" vertex="1">
+                    <mxGeometry x="55" y="131.81" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="" style="group" parent="1" vertex="1" connectable="0">
+                    <mxGeometry x="175" y="120" width="90" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="59" value="Member&lt;br style=&quot;font-size: 10px;&quot;&gt;InsertAction" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="67" value="Member&lt;br style=&quot;font-size: 10px;&quot;&gt;InsertAction" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry x="10" y="10" width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="68" value="Member&lt;br style=&quot;font-size: 10px;&quot;&gt;InsertAction" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;fontSize=10;" parent="70" vertex="1">
+                    <mxGeometry x="20" y="20" width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" value="&lt;font style=&quot;font-size: 12px;&quot;&gt;SQL 전달,&lt;br&gt;commit&lt;br&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="414" y="95.81" width="70" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
