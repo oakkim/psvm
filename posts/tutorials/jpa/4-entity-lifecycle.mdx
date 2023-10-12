@@ -2,7 +2,7 @@
 title: "JPA 엔티티 라이프사이클에 대해 탐구해보자"
 description: "JPA 엔티티 라이프사이클에 대해 탐구해보자"
 createdAt: '2023-10-05T21:54:00.000Z'
-updatedAt: '2023-10-12T08:00:00.000Z'
+updatedAt: '2023-10-13T07:40:00.000Z'
 draftCompletedAt: '2023-10-12T08:00:00.000Z'
 preview: null
 draft: false
@@ -203,12 +203,15 @@ persistenceContext.setEntryStatus( entityEntry, Status.DELETED );
 왜냐하면, JPA 구현체들은 플러시를 임의로 실행할 수 있기 때문이다.
 직접 `flush()`를 실행하지 않더라도 데이터베이스에 SQL이 부분적으로 전송됐을 수 있단 얘기다.
 
-JPA에서는 위와 같이 말하는데, 반면 하이버네이트에서는 좀 반대로 얘기한다.
-엔티티 변경사항이 `flush()`되어 데이터베이스에 연동되는걸 원하지 않으면 준영속 상태로 만들어라고한다.
+<p><s>JPA에서는 위와 같이 말하는데, 반면 하이버네이트에서는 좀 반대로 얘기한다.
+엔티티 변경사항이 `flush()`되어 데이터베이스에 연동되는걸 원하지 않으면 준영속 상태로 만들어라고한다.</s></p>
 
-누구는 목적이 엔티티 변경사항 플러시를 막기위해서 준영속 상태로 만들어라고 하고,
-누구는 이식성을 위해 준영속을 하기 전 플러시를 하라고 한다. 누구의 말을 들어야하나.
+<p><s>누구는 목적이 엔티티 변경사항 플러시를 막기위해서 준영속 상태로 만들어라고 하고,
+누구는 이식성을 위해 준영속을 하기 전 플러시를 하라고 한다. 누구의 말을 들어야하나.</s></p>
 
+`find()`로 엔티티를 불러왔을 때를 생각해야한다.
+이 엔티티가 준영속 상태로 바뀌어야 내가 임의로 하는 작업들이 데이터베이스에 연동되지 않으니깐 그럴 때 써라는 의미네.
+이미 작업한 내역을 지울 때 쓰는게 아닌, 앞으로 작업한 내역을 연동하지 않게 만들려면 `flush()`를 쓰란 의미.
 </Accordian>
 
 ## detach()로 준영속 상태 전환
@@ -259,6 +262,15 @@ tx.commit();  // 트랜잭션 커밋
 하이버네이트 가이드 문서는 엔티티 변경사항이 `flush()`되어 데이터베이스에 연동되는걸 원하지 않으면 준영속 상태로 만들어라고한다.
 근데 왜 쓰기 지연 캐시에서 삭제하지 않을까?
 그래서 [하이버네이트 포럼에 물어봤다.](https://discourse.hibernate.org/t/assertionfailure-occurs-detach-after-persist/8363) 답변이 달리면 그때 업데이트하겠다.
+
+답변이 달렸다.<br/>
+> I don’t know why you’re detaching an entity right after you pass it to persist as that will not make the entity persistent. You have to flush first.
+Either way, I’d say this is a bug. The detach operation should remove entity actions involving the entity.
+
+우선, 너가 왜 바로 영속으로 바꿨다가 아니게 만들려는지 모르겠다. 그 전에 먼저 flush를 해야한다.
+어쨋던간에 버그라고 볼 수 있을 것 같다. detach 연산은 해당 엔티티를 포함하는 엔티티 액션을 삭제해야한다.
+
+고칠지는 모르겠다.
 </Accordian>
 
 ## clear()로 준영속 상태 전환
