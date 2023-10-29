@@ -51,7 +51,7 @@ $breakpoint-desktop: 1024px;
 
   .body {
     p, ul, ol {
-      line-height: 1.6;
+      line-height: 1.8;
       margin-bottom: 1.25rem;
       &>strong {
         color: black;
@@ -68,11 +68,16 @@ $breakpoint-desktop: 1024px;
       p {
         margin-bottom: 0;
       }
+
+      ul, ol {
+        margin-bottom: 0;
+      }
     }
 
     ol {
       & > li {
         list-style-type: decimal;
+        margin: 0 0 0 40px;
       }
     }
 
@@ -107,7 +112,8 @@ $breakpoint-desktop: 1024px;
         color: black;
       }
       scroll-margin-top: var(--h-header);
-      margin-bottom: 1.25rem 
+      margin-bottom: 1.25rem;
+      font-weight: 500;
     }
 
 
@@ -156,6 +162,14 @@ $breakpoint-desktop: 1024px;
       a {
         text-decoration: underline;
       }
+    }
+
+    em {
+      padding-right: 5px;
+    }
+
+    strong {
+      font-weight: 600;
     }
 
     pre {
