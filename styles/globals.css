@@ -116,7 +116,7 @@ code {
 
 body {
   letter-spacing: -0.3px;
-  
+  font-weight: 300;
   font-family: 'Jetbrains Mono','pretendard','Roboto Slab',AppleSDGothicNeo,sans-serif;
   /* font-family: monospace, 'pretendard' */
 }
