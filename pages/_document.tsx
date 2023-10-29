@@ -32,7 +32,7 @@ export default function Document() {
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC" crossOrigin="anonymous"></link>
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin=""/>
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet"></link>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></link>
         <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png"/>
         <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png"/>
         <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png"/>
