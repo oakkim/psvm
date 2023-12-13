@@ -12,7 +12,7 @@ const PostsPage = ({
   return (
     <div className="w-full">
       {posts.map((post?: any) => 
-        <Link key={post?.id} className="block p-4 border-b" href={"/posts/" + post?._raw.flattenedPath}>
+        <Link key={post?.id} className="block p-4 border-b" href={"/" + post?._raw.flattenedPath}>
           <div>
             <span>{post?.title}</span>
           </div>
