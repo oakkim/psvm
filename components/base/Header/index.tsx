@@ -10,6 +10,17 @@ const Header = () => {
           </div>
         </Link>
       </div>
+      <div className="flex-1"/>
+      <div>
+        <Link href="/posts">
+          글
+        </Link>
+      </div>
+      <div>
+        <Link href="/journals">
+          저널
+        </Link>
+      </div>
     </div>
   );
 }

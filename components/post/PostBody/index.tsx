@@ -1,7 +1,7 @@
 import { useMDXComponent } from 'next-contentlayer/hooks';
 import { ReactNode, RefObject, useState } from 'react';
 
-import style from '@/pages/posts/posts.module.scss'
+import style from '../posts.module.scss'
 import CustomTable from '@/components/common/CustomTable';
 import Accordian from '@/components/Accordian';
 

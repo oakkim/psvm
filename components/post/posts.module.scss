@@ -34,7 +34,10 @@ $breakpoint-desktop: 1024px;
 
     li {
       display: block;
+      margin: 0;
+      padding: 0;
       padding-left: 1rem;
+      line-height: 1.25rem;
     }
 
     li:before {

@@ -129,3 +129,109 @@ body {
   position: relative !important;
   right: -20px !important;
 }
+
+p, ul, ol {
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+  &>strong {
+    color: black;
+  }
+  ul {
+    margin-bottom: 0;
+  }
+}
+
+li {
+  margin: 0 0 0 30px;
+  padding: 5px 0px;
+  
+  p {
+    margin-bottom: 0;
+  }
+
+  ul, ol {
+    margin-bottom: 0;
+  }
+}
+
+ol {
+  & > li {
+    list-style-type: decimal;
+    margin: 0 0 0 40px;
+  }
+}
+
+ul {
+  & > li {
+    list-style: square;
+  }
+}
+
+* {
+  color: #131516;
+}
+
+h2, h3, h4, h5, h6, .h7 {
+  a {
+    color: black;
+  }
+  font-weight: 500;
+}
+
+
+h2 {
+  font-size: 1.5rem;      
+  margin-top: 1.5rem;
+
+  + h3 {
+    margin-top: -0.5rem;
+  }
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin-top: 3rem;
+}
+
+h4 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+h5 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+h6 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.h7 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+em {
+  padding-right: 5px;
+}
+
+strong {
+  font-weight: 600;
+}
+
+pre {
+  code {
+    overflow-x: auto;
+    width: 100%;
+    display: block;
+    counter-reset: line;
+    padding: 1rem;
+    border: 1px solid black;
+    border-radius: 0.25rem;
+    background-color: #fefeff;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+}

@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import Separator from '../Separator';
 
 type PostHeaderProps = {
   title: string;
