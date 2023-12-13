@@ -2,7 +2,7 @@ import {
   GetStaticProps,
   InferGetStaticPropsType,
 } from 'next';
-import { allDocuments, allPosts } from 'contentlayer/generated';
+import { Post, allDocuments, allPosts } from 'contentlayer/generated';
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -31,7 +31,7 @@ const Home = ({
 
       <h2>최근 발행한 글</h2>
       <ul>
-        {documents.map(doc => <li key={doc.id}><Link href={doc?._raw.flattenedPath}>
+        {documents.map((doc: Post) => <li key={doc._id}><Link href={doc?._raw.flattenedPath}>
           <div className="mr-5 lg:inline">{dayjs(doc.createdAt).format("YYYY-MM-DD")}</div>
           {doc.title}
         </Link></li>)}
